@@ -10,6 +10,7 @@
   body { font-family: Arial, sans-serif; background: #f5f5f5; }
   #map { height: calc(100vh - 60px); width: 100%; touch-action: manipulation; }
   .header { background: white; color: #333; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; min-height: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .header-content { display: flex; align-items: center; gap: 12px; }
   .header h1 { font-size: 18px; font-weight: 600; color: #333; }
   .header .stats { font-size: 13px; opacity: 0.7; color: #666; }
   .export-btn { background: #e0e0e0; color: rgb(0, 164, 255); border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
@@ -66,23 +67,24 @@
   
   /* Mobile Responsive Styles */
   @media (max-width: 768px) {
-    .header { padding: 8px 12px; height: auto; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .header { padding: 8px 12px; height: auto; }
+    .header-content { flex-direction: column; align-items: flex-start; gap: 4px; }
     .header h1 { font-size: 16px; }
     .header .stats { font-size: 11px; }
-    .export-btn { padding: 6px 12px; font-size: 12px; }
+    .export-btn { display: none; }
     
-    .search-container { top: 120px; width: 95%; max-width: none; }
+    .search-container { top: 130px; width: 95%; max-width: none; }
     .search-box { flex-direction: column; padding: 8px; }
     .search-input { min-width: auto; width: 100%; font-size: 13px; padding: 8px 12px; }
     .search-btn { width: 100%; padding: 10px; }
     .search-result { font-size: 12px; padding: 10px 12px; }
     
-    .mobile-controls { display: flex; position: absolute; top: 70px; left: 10px; right: 10px; gap: 8px; z-index: 999; justify-content: space-between; }
+    .mobile-controls { display: flex; position: absolute; top: 65px; left: 10px; right: 10px; gap: 8px; z-index: 999; justify-content: space-between; }
     .filter-toggle-btn { display: block; position: static; padding: 8px 12px; font-size: 12px; flex: 1; }
     .layer-toggle-btn { display: block; position: static; padding: 8px 12px; font-size: 12px; flex: 1; }
     .layer-toggle { display: none; }
-    .layer-toggle.show { display: block; top: 120px; right: 10px; padding: 8px 12px; font-size: 11px; }
-    .filters { top: 120px; left: 10px; max-width: 200px; padding: 10px 12px; font-size: 12px; max-height: 50vh; display: none; }
+    .layer-toggle.show { display: block; top: 110px; right: 10px; padding: 8px 12px; font-size: 11px; }
+    .filters { top: 110px; left: 10px; max-width: 200px; padding: 10px 12px; font-size: 12px; max-height: 50vh; display: none; }
     .filters.show { display: block; }
     .filters h3 { font-size: 13px; margin-bottom: 8px; padding-bottom: 4px; }
     .filter-section { margin-bottom: 12px; }
@@ -109,15 +111,15 @@
     .header h1 { font-size: 14px; }
     .header .stats { font-size: 10px; }
     
-    .search-container { top: 110px; }
+    .search-container { top: 115px; }
     .search-input { font-size: 12px; }
     
-    .mobile-controls { top: 60px; }
+    .mobile-controls { top: 55px; }
     .filter-toggle-btn { padding: 6px 10px; font-size: 11px; }
     .layer-toggle-btn { padding: 6px 10px; font-size: 11px; }
-    .filters { top: 110px; max-width: 180px; padding: 8px 10px; font-size: 11px; max-height: 45vh; display: none; }
+    .filters { top: 100px; left: 10px; max-width: 180px; padding: 8px 10px; font-size: 11px; max-height: 45vh; display: none; }
     .filters.show { display: block; }
-    .layer-toggle.show { top: 110px; padding: 6px 10px; font-size: 10px; }
+    .layer-toggle.show { top: 100px; right: 10px; padding: 6px 10px; font-size: 10px; }
     .filters h3 { font-size: 12px; margin-bottom: 6px; }
     .filter-section { margin-bottom: 10px; }
     .filter-section h4 { font-size: 11px; margin-bottom: 4px; }
@@ -137,7 +139,7 @@
 </head>
 <body>
 <div class="header">
-  <div style="display: flex; align-items: center; gap: 12px;">
+  <div class="header-content">
     <img src="Gopufflogo.png" alt="Gopuff" style="height: 32px;">
     <div>
       <h1>DC & Delivery Coverage Map</h1>
