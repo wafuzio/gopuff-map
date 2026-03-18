@@ -150,7 +150,7 @@ async function loadData() {
     });
     
     document.getElementById('loadingProgress').textContent = 'Loading zip code boundaries (62 MB)...';
-    const boundariesResponse = await fetch('https://cdn.jsdelivr.net/gh/wafuzio/gopuff-map@main/gopuff_delivery_zip_boundaries.json');
+    const boundariesResponse = await fetch('https://github.com/wafuzio/gopuff-map/releases/download/v1.0/gopuff_delivery_zip_boundaries.json');
     ZIP_BOUNDARIES = await boundariesResponse.json();
     
     document.getElementById('loading').style.display = 'none';
