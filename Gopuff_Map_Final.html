@@ -17,6 +17,7 @@
   .filters { position: absolute; top: 70px; left: 10px; background: white; padding: 20px 24px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.15); z-index: 1000; font-size: 15px; max-width: 320px; max-height: calc(100vh - 120px); overflow-y: auto; }
   .filter-toggle-btn { display: none; position: absolute; top: 70px; left: 10px; background: white; color: #333; border: none; padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 999; font-size: 14px; font-weight: 600; cursor: pointer; }
   .filter-toggle-btn:active { background: #f0f0f0; }
+  .mobile-controls { display: none; }
   .filters h3 { margin: 0 0 14px 0; font-size: 18px; color: #333; border-bottom: 2px solid #eee; padding-bottom: 8px; font-weight: 700; }
   .filter-section { margin-bottom: 20px; }
   .filter-section:last-child { margin-bottom: 0; }
@@ -41,6 +42,8 @@
   .layer-toggle { position: absolute; top: 70px; right: 10px; background: white; padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; font-size: 12px; }
   .layer-toggle label { display: flex; align-items: center; margin: 6px 0; cursor: pointer; }
   .layer-toggle input { margin-right: 8px; }
+  .layer-toggle-btn { display: none; position: absolute; top: 70px; right: 10px; background: white; color: #333; border: none; padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 999; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .layer-toggle-btn:active { background: #f0f0f0; }
   .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px 40px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 2000; font-size: 14px; color: #333; text-align: center; }
   .loading-progress { margin-top: 10px; font-size: 12px; color: #666; }
   .search-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 1000; width: auto; }
@@ -74,9 +77,13 @@
     .search-btn { width: 100%; padding: 10px; }
     .search-result { font-size: 12px; padding: 10px 12px; }
     
-    .filters { top: 10px; left: 10px; max-width: 200px; padding: 10px 12px; font-size: 12px; max-height: 50vh; display: none; }
+    .mobile-controls { display: flex; position: absolute; top: 70px; left: 10px; right: 10px; gap: 8px; z-index: 999; justify-content: space-between; }
+    .filter-toggle-btn { display: block; position: static; padding: 8px 12px; font-size: 12px; flex: 1; }
+    .layer-toggle-btn { display: block; position: static; padding: 8px 12px; font-size: 12px; flex: 1; }
+    .layer-toggle { display: none; }
+    .layer-toggle.show { display: block; top: 120px; right: 10px; padding: 8px 12px; font-size: 11px; }
+    .filters { top: 120px; left: 10px; max-width: 200px; padding: 10px 12px; font-size: 12px; max-height: 50vh; display: none; }
     .filters.show { display: block; }
-    .filter-toggle-btn { display: block; top: 10px; left: 10px; padding: 8px 12px; font-size: 12px; }
     .filters h3 { font-size: 13px; margin-bottom: 8px; padding-bottom: 4px; }
     .filter-section { margin-bottom: 12px; }
     .filter-section h4 { font-size: 12px; margin-bottom: 6px; }
@@ -105,9 +112,12 @@
     .search-container { top: 110px; }
     .search-input { font-size: 12px; }
     
-    .filters { max-width: 180px; padding: 8px 10px; font-size: 11px; max-height: 45vh; display: none; }
-    .filters.show { display: block; }
+    .mobile-controls { top: 60px; }
     .filter-toggle-btn { padding: 6px 10px; font-size: 11px; }
+    .layer-toggle-btn { padding: 6px 10px; font-size: 11px; }
+    .filters { top: 110px; max-width: 180px; padding: 8px 10px; font-size: 11px; max-height: 45vh; display: none; }
+    .filters.show { display: block; }
+    .layer-toggle.show { top: 110px; padding: 6px 10px; font-size: 10px; }
     .filters h3 { font-size: 12px; margin-bottom: 6px; }
     .filter-section { margin-bottom: 10px; }
     .filter-section h4 { font-size: 11px; margin-bottom: 4px; }
@@ -121,7 +131,6 @@
     .legend-key-label { font-size: 10px; margin-left: 6px; }
     .legend-color-box { width: 16px; height: 16px; }
     
-    .layer-toggle { padding: 5px 8px; font-size: 9px; }
     .zoom-display { padding: 3px 8px; font-size: 10px; }
   }
 </style>
@@ -148,11 +157,14 @@
   <div class="search-result" id="searchResult"></div>
 </div>
 <div id="map"></div>
-<button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilters()">Filters</button>
+<div class="mobile-controls">
+  <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilters()">Filters</button>
+  <button class="layer-toggle-btn" id="layerToggleBtn" onclick="toggleLayerPanel()">Layers</button>
+</div>
 <div class="filters" id="filters"></div>
 <div class="legend" id="legend"></div>
 <div class="zoom-display" id="zoomDisplay">Zoom: 5</div>
-<div class="layer-toggle">
+<div class="layer-toggle" id="layerToggle">
   <label><input type="checkbox" id="toggleDelivery" checked onchange="toggleLayer('delivery')"> Delivery Zip Codes</label>
 </div>
 <div class="loading" id="loading">
@@ -629,11 +641,35 @@ window.handleKeyDown = handleKeyDown;
 function toggleFilters() {
   const filters = document.getElementById('filters');
   const btn = document.getElementById('filterToggleBtn');
+  const layerToggle = document.getElementById('layerToggle');
+  
   filters.classList.toggle('show');
   btn.textContent = filters.classList.contains('show') ? 'Hide Filters' : 'Filters';
+  
+  // Hide layer toggle if filters are shown
+  if (filters.classList.contains('show') && layerToggle.classList.contains('show')) {
+    layerToggle.classList.remove('show');
+    document.getElementById('layerToggleBtn').textContent = 'Layers';
+  }
+}
+
+function toggleLayerPanel() {
+  const layerToggle = document.getElementById('layerToggle');
+  const btn = document.getElementById('layerToggleBtn');
+  const filters = document.getElementById('filters');
+  
+  layerToggle.classList.toggle('show');
+  btn.textContent = layerToggle.classList.contains('show') ? 'Hide Layers' : 'Layers';
+  
+  // Hide filters if layer toggle is shown
+  if (layerToggle.classList.contains('show') && filters.classList.contains('show')) {
+    filters.classList.remove('show');
+    document.getElementById('filterToggleBtn').textContent = 'Filters';
+  }
 }
 
 window.toggleFilters = toggleFilters;
+window.toggleLayerPanel = toggleLayerPanel;
 
 function isPointInPolygon(point, polygon) {
   // Ray casting algorithm to check if point is inside polygon
