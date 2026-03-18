@@ -168,6 +168,7 @@
 <div class="zoom-display" id="zoomDisplay">Zoom: 5</div>
 <div class="layer-toggle" id="layerToggle">
   <label><input type="checkbox" id="toggleDelivery" checked onchange="toggleLayer('delivery')"> Delivery Zip Codes</label>
+  <label><input type="checkbox" id="toggleDC" checked onchange="toggleLayer('dc')"> Zip Codes with DC</label>
 </div>
 <div class="loading" id="loading">
   Loading map data...
@@ -188,6 +189,7 @@ let cityToZipsMap = {};
 let autocompleteTimeout = null;
 let selectedAutocompleteIndex = -1;
 let autocompleteResults = [];
+let layerVisibility = { delivery: true, dc: true };
 
 function popupHtmlZip(zipCode, zipData, hasDC, dcInfo) {
   let html = `<div class="popup-content">
@@ -334,15 +336,79 @@ function initializeMap() {
   updateTitle();
 }
 
-window.toggleLayer = function(type) {
-  if (type === 'delivery') {
-    if (document.getElementById('toggleDelivery').checked) {
-      map.addLayer(deliveryLayer);
-    } else {
-      map.removeLayer(deliveryLayer);
-    }
+window.toggleLayer = function toggleLayer(layerType) {
+  if (layerType === 'delivery') {
+    const isChecked = document.getElementById('toggleDelivery').checked;
+    layerVisibility.delivery = isChecked;
+  } else if (layerType === 'dc') {
+    const isChecked = document.getElementById('toggleDC').checked;
+    layerVisibility.dc = isChecked;
   }
+  
+  // Rebuild the layer with current visibility settings
+  updateDeliveryLayer();
 };
+
+function updateDeliveryLayer() {
+  deliveryLayer.clearLayers();
+  
+  // Check if both layers are hidden
+  if (!layerVisibility.delivery && !layerVisibility.dc) {
+    updateTitle();
+    return;
+  }
+  
+  // Create zip data lookup and DC data lookup
+  const zipDataMap = {};
+  DELIVERY_ZIPS.forEach(d => {
+    zipDataMap[d.zip] = d;
+  });
+  
+  const dcDataMap = {};
+  DC_LOCATIONS.forEach(dc => {
+    if (dc.zip) dcDataMap[dc.zip] = dc;
+  });
+  
+  // Filter delivery zip codes
+  const hasStateFilter = activeFilters.states.size > 0;
+  
+  if (ZIP_BOUNDARIES && ZIP_BOUNDARIES.features) {
+    ZIP_BOUNDARIES.features.forEach(feature => {
+      const zipCode = feature.properties.ZCTA5CE10 || feature.properties.GEOID10;
+      const zipData = zipDataMap[zipCode] || {};
+      const hasDC = dcZipCodes.has(zipCode);
+      const dcInfo = dcDataMap[zipCode];
+      
+      // Check if zip passes filters
+      let show = true;
+      if (hasStateFilter && !activeFilters.states.has(zipData.state)) {
+        show = false;
+      }
+      
+      if (show) {
+        // Check layer visibility settings
+        const shouldShow = (hasDC && layerVisibility.dc) || (!hasDC && layerVisibility.delivery);
+        
+        if (shouldShow) {
+          const polygon = L.geoJSON(feature, {
+            style: {
+              fillColor: hasDC ? 'rgb(0, 164, 255)' : 'rgb(180, 160, 230)',
+              fillOpacity: 0.25,
+              color: hasDC ? 'rgb(0, 200, 255)' : 'rgb(150, 120, 210)',
+              weight: hasDC ? 2 : 1
+            },
+            onEachFeature: function(feature, layer) {
+              layer.bindPopup(popupHtmlZip(zipCode, zipData, hasDC, dcInfo));
+            }
+          });
+          deliveryLayer.addLayer(polygon);
+        }
+      }
+    });
+  }
+  
+  updateTitle();
+}
 
 function buildFilters() {
   let h = '<h3>Filters</h3>';
@@ -449,18 +515,23 @@ function updateMapFilters() {
       }
       
       if (show) {
-        const polygon = L.geoJSON(feature, {
-          style: {
-            fillColor: hasDC ? 'rgb(0, 164, 255)' : 'rgb(180, 160, 230)',
-            fillOpacity: 0.25,
-            color: hasDC ? 'rgb(0, 200, 255)' : 'rgb(150, 120, 210)',
-            weight: hasDC ? 2 : 1
-          },
-          onEachFeature: function(feature, layer) {
-            layer.bindPopup(popupHtmlZip(zipCode, zipData, hasDC, dcInfo));
-          }
-        });
-        deliveryLayer.addLayer(polygon);
+        // Check layer visibility settings
+        const shouldShow = (hasDC && layerVisibility.dc) || (!hasDC && layerVisibility.delivery);
+        
+        if (shouldShow) {
+          const polygon = L.geoJSON(feature, {
+            style: {
+              fillColor: hasDC ? 'rgb(0, 164, 255)' : 'rgb(180, 160, 230)',
+              fillOpacity: 0.25,
+              color: hasDC ? 'rgb(0, 200, 255)' : 'rgb(150, 120, 210)',
+              weight: hasDC ? 2 : 1
+            },
+            onEachFeature: function(feature, layer) {
+              layer.bindPopup(popupHtmlZip(zipCode, zipData, hasDC, dcInfo));
+            }
+          });
+          deliveryLayer.addLayer(polygon);
+        }
       }
     });
   }
